@@ -31,8 +31,14 @@ Contributors:
 
 3. Setup `participantA`
     1. Allocate party `Alice`
-    2. Upload the [models DAR]
-    3. Create one or more [`MultiNode.Account`] contracts, e.g. using the navigator
+       ```
+       daml ledger allocate-parties Alice --host localhost --port 5011
+       ```
+    3. Upload the [models DAR]
+       ```
+       daml ledger upload-dar --host localhost --port 5011 target/multi-node-canton-example-0.0.1.dar
+       ```
+    5. Create one or more [`MultiNode.Account`] contracts, e.g. using the navigator
 4. Start `participantB`
 
    ```shell
