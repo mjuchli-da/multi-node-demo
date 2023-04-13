@@ -39,6 +39,9 @@ Contributors:
        daml ledger upload-dar --host localhost --port 5011 target/multi-node-canton-example-0.0.1.dar
        ```
     5. Create one or more [`MultiNode.Account`] contracts, e.g. using the navigator
+       ```
+       daml navigator server localhost 5011 --port 7501 --feature-user-management false
+       ```
 4. Start `participantB`
 
    ```shell
