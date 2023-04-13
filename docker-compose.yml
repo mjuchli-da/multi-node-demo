@@ -1,0 +1,123 @@
+services:
+  participantA:
+    image: ${CANTON_IMAGE:-digitalasset-canton-enterprise-docker.jfrog.io/digitalasset/canton-enterprise:latest}
+    container_name: participantA
+    ports:
+      - "4011:4011"
+      - "5011:5011"
+    volumes:
+      - "./config/participantA:/config"
+      - "./.migration:/migration"
+    tty: true
+    stdin_open: true
+    command:
+      - "--config"
+      - "/config/canton.conf"
+      - "--bootstrap"
+      - "/config/canton.bootstrap"
+    depends_on:
+      participantA-database:
+        condition: service_healthy
+      domain:
+        condition: service_started
+  participantA-database:
+    image: "${POSTGRES_IMAGE:-postgres:14.7}"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=participantA
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "admin", "-d", "participantA"]
+      interval: 1s
+  participantB:
+    image: ${CANTON_IMAGE:-digitalasset-canton-enterprise-docker.jfrog.io/digitalasset/canton-enterprise:latest}
+    container_name: participantB
+    ports:
+      - "4021:4021"
+      - "5021:5021"
+    volumes:
+      - "./config/participantB:/config"
+      - "./.migration:/migration"
+    tty: true
+    stdin_open: true
+    command:
+      - "--config"
+      - "/config/canton.conf"
+      - "--bootstrap"
+      - "/config/canton.bootstrap"
+    depends_on:
+      participantB-database:
+        condition: service_healthy
+      domain:
+        condition: service_started
+      participantA:
+        condition: service_started
+  participantB-database:
+    image: "${POSTGRES_IMAGE:-postgres:14.7}"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=participantB
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "admin", "-d", "participantB"]
+      interval: 1s
+
+  participantC:
+    image: ${CANTON_IMAGE:-digitalasset-canton-enterprise-docker.jfrog.io/digitalasset/canton-enterprise:latest}
+    container_name: participantC
+    ports:
+      - "4031:4031"
+      - "5031:5031"
+    volumes:
+      - "./config/participantC:/config"
+      - "./.migration:/migration"
+    tty: true
+    stdin_open: true
+    command:
+      - "--config"
+      - "/config/canton.conf"
+      - "--bootstrap"
+      - "/config/canton.bootstrap"
+    depends_on:
+      participantC-database:
+        condition: service_healthy
+      domain:
+        condition: service_started
+      participantB:
+        condition: service_started
+      participantA:
+        condition: service_started
+  participantC-database:
+    image: "${POSTGRES_IMAGE:-postgres:14.7}"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=participantC
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "admin", "-d", "participantC" ]
+      interval: 1s
+
+  domain:
+    image: ${CANTON_IMAGE:-digitalasset-canton-enterprise-docker.jfrog.io/digitalasset/canton-enterprise:latest}
+    ports:
+      - "4001:4001"
+    volumes:
+      - "./config/domain:/config"
+    command:
+      - "daemon"
+      - "--config"
+      - "/config/canton.conf"
+      - "--bootstrap"
+      - "/config/canton.bootstrap"
+    depends_on:
+      domain-database:
+        condition: service_healthy
+  domain-database:
+    image: "${POSTGRES_IMAGE:-postgres:14.7}"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=domain
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "admin", "-d", "domain"]
+      interval: 1s

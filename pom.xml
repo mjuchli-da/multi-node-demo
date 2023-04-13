@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>tamas.kalcza.examples.daml</groupId>
+  <artifactId>multi-node-canton</artifactId>
+  <version>0.0.1</version>
+  <name>Multi-node Canton</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <daml.sdk.version>2.5.3</daml.sdk.version>
+    <daml.project.name>multi-node-canton-example</daml.project.name>
+    <daml.yaml>daml.yaml</daml.yaml>
+  </properties>
+
+  <build>
+    <sourceDirectory>src/main/daml</sourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>Generate daml.yaml</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <echo file="${daml.yaml}" append="false" message="sdk-version: ${daml.sdk.version}${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="name: ${daml.project.name}${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="version: ${project.version}${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="source: src/main/daml${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="dependencies:${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="- daml-prim${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="- daml-stdlib${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="build-options:${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="- '--ghc-option'${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="- '-Werror'${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="- '--ghc-option'${line.separator}"/>
+                <echo file="${daml.yaml}" append="true" message="- '-Wunused-binds'${line.separator}"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>Clean Daml</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>daml</executable>
+              <arguments>
+                <argument>clean</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Compile Daml</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>daml</executable>
+              <arguments>
+                <argument>build</argument>
+                <argument>--output</argument>
+                <argument>${project.build.directory}/${daml.project.name}-${project.version}.dar</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

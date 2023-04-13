@@ -1,0 +1,8 @@
+daml.yaml
+*.gz
+*.log
+.databases
+.migration
+.idea
+.daml
+target

@@ -1,0 +1,8 @@
+module MultiNode.Account where
+
+template Account
+  with
+    owner : Party
+    balance : Decimal
+  where
+    signatory owner
